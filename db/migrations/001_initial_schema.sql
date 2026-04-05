@@ -157,5 +157,36 @@ INSERT INTO jobHistory VALUES('00063','SPVR', '2011-06-01', 40000,'BR2');
 
 select * from jobHistory;
 
+-- ============================================
+-- Add record_status and stamp to existing tables
+-- ============================================
+
+-- Add to employee (modify existing columns to match spec)
+ALTER TABLE employee 
+DROP COLUMN IF EXISTS record_status,
+DROP COLUMN IF EXISTS stamp,
+ADD COLUMN record_status VARCHAR(10) DEFAULT 'ACTIVE',
+ADD COLUMN stamp VARCHAR(60);
+
+-- Add to job
+ALTER TABLE job 
+DROP COLUMN IF EXISTS record_status,
+DROP COLUMN IF EXISTS stamp,
+ADD COLUMN record_status VARCHAR(10) DEFAULT 'ACTIVE',
+ADD COLUMN stamp VARCHAR(60);
+
+-- Add to department
+ALTER TABLE department 
+DROP COLUMN IF EXISTS record_status,
+DROP COLUMN IF EXISTS stamp,
+ADD COLUMN record_status VARCHAR(10) DEFAULT 'ACTIVE',
+ADD COLUMN stamp VARCHAR(60);
+
+-- Add to jobHistory
+ALTER TABLE jobHistory 
+DROP COLUMN IF EXISTS record_status,
+DROP COLUMN IF EXISTS stamp,
+ADD COLUMN record_status VARCHAR(10) DEFAULT 'ACTIVE',
+ADD COLUMN stamp VARCHAR(60);
 
  								

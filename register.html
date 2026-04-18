@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Create Account | ElevateHR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card">
+
+            <div class="auth-header">
+                <h1>Create account</h1>
+                <p>Join the HR platform</p>
+            </div>
+
+            <div class="two-columns">
+                <div class="input-group">
+                    <label for="regFirstName">First Name</label>
+                    <input type="text" id="regFirstName" placeholder="John">
+                </div>
+                <div class="input-group">
+                    <label for="regLastName">Last Name</label>
+                    <input type="text" id="regLastName" placeholder="Doe">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="regUsername">Username</label>
+                <input type="text" id="regUsername" placeholder="johndoe">
+            </div>
+
+            <div class="input-group">
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" placeholder="you@company.com">
+            </div>
+
+            <div class="input-group">
+                <label for="regPassword">Password</label>
+                <input type="password" id="regPassword" placeholder="Min. 6 characters">
+            </div>
+
+            <div class="input-group">
+                <label for="regConfirmPassword">Confirm password</label>
+                <input type="password" id="regConfirmPassword" placeholder="••••••">
+            </div>
+
+            <span id="registerError" class="error-msg"></span>
+
+            <button class="btn-primary" id="registerBtn">Register →</button>
+
+            <div class="divider"><span>or continue with</span></div>
+
+            <button class="google-btn" id="googleRegisterBtn">
+                <i class="fab fa-google"></i> Register with Google
+            </button>
+
+            <div class="auth-footer">
+                Already have an account?
+                <a href="login.html">Sign in</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ── Helpers ────────────────────────────────────────────────
+        let mockUsers = JSON.parse(localStorage.getItem('hr_mock_users')) || [];
+
+        function handleRegister(firstName, lastName, username, email, password, confirmPassword, errorEl) {
+            errorEl.innerText = '';
+            if (!firstName || !lastName || !username || !email || !password || !confirmPassword) {
+                errorEl.innerText = 'All fields required.'; return false;
+            }
+            if (firstName.length < 2)  { errorEl.innerText = 'First name min 2 chars.'; return false; }
+            if (lastName.length < 2)   { errorEl.innerText = 'Last name min 2 chars.'; return false; }
+            if (username.length < 3)   { errorEl.innerText = 'Username min 3 chars.'; return false; }
+            if (!email.includes('@') || !email.includes('.')) {
+                errorEl.innerText = 'Valid email required.'; return false;
+            }
+            if (password.length < 6)   { errorEl.innerText = 'Password min 6 characters.'; return false; }
+            if (password !== confirmPassword) { errorEl.innerText = 'Passwords do not match.'; return false; }
+            if (mockUsers.find(u => u.email === email))    { errorEl.innerText = 'Email already exists.'; return false; }
+            if (mockUsers.find(u => u.username === username)) { errorEl.innerText = 'Username taken.'; return false; }
+
+            mockUsers.push({ firstName, lastName, username, email, password });
+            localStorage.setItem('hr_mock_users', JSON.stringify(mockUsers));
+            localStorage.setItem('hr_current_user', JSON.stringify({
+                email,
+                name: `${firstName} ${lastName}`,
+                firstName,
+                lastName
+            }));
+            return true;
+        }
+
+        // ── Element refs ───────────────────────────────────────────
+        const regBtn     = document.getElementById('registerBtn');
+        const googleReg  = document.getElementById('googleRegisterBtn');
+        const firstName  = document.getElementById('regFirstName');
+        const lastName   = document.getElementById('regLastName');
+        const username   = document.getElementById('regUsername');
+        const email      = document.getElementById('regEmail');
+        const pass       = document.getElementById('regPassword');
+        const confirm    = document.getElementById('regConfirmPassword');
+        const errorSpan  = document.getElementById('registerError');
+
+        function performRegister() {
+            regBtn.disabled = true;
+            regBtn.innerHTML = '<div class="loading-spinner-small"></div> Creating account...';
+
+            setTimeout(() => {
+                const ok = handleRegister(
+                    firstName.value.trim(), lastName.value.trim(),
+                    username.value.trim(), email.value.trim(),
+                    pass.value, confirm.value, errorSpan
+                );
+                if (ok) {
+                    window.location.href = 'app.html'; // redirect to app shell
+                } else {
+                    regBtn.disabled = false;
+                    regBtn.innerHTML = 'Register →';
+                }
+            }, 300);
+        }
+
+        regBtn.addEventListener('click', performRegister);
+        [firstName, lastName, username, email, pass, confirm].forEach(inp =>
+            inp.addEventListener('keypress', e => { if (e.key === 'Enter') performRegister(); })
+        );
+
+        googleReg.addEventListener('click', () => {
+            window.location.href = 'callback.html';
+        });
+    </script>
+
+</body>
+</html>

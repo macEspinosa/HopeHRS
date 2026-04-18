@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sign In | ElevateHR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card">
+
+            <div class="auth-header">
+                <h1>Sign in</h1>
+                <p>Access your HR dashboard</p>
+            </div>
+
+            <div class="input-group">
+                <label for="loginEmail">Email address</label>
+                <input type="email" id="loginEmail" placeholder="you@company.com">
+            </div>
+
+            <div class="input-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••">
+            </div>
+
+            <span id="loginError" class="error-msg"></span>
+
+            <button class="btn-primary" id="loginBtn">Sign in →</button>
+
+            <div class="divider"><span>or continue with</span></div>
+
+            <button class="google-btn" id="googleLoginBtn">
+                <i class="fab fa-google"></i> Sign in with Google
+            </button>
+
+            <div class="auth-footer">
+                Don't have an account?
+                <a href="register.html">Create account</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ── Helpers ────────────────────────────────────────────────
+        let mockUsers = JSON.parse(localStorage.getItem('hr_mock_users')) || [];
+
+        function handleLogin(email, password, errorEl) {
+            errorEl.innerText = '';
+            if (!email || !password) {
+                errorEl.innerText = 'Email and password required.';
+                return false;
+            }
+            if (!email.includes('@') || !email.includes('.')) {
+                errorEl.innerText = 'Valid email required.';
+                return false;
+            }
+            const user = mockUsers.find(u => u.email === email);
+            if (!user || user.password !== password) {
+                errorEl.innerText = 'Invalid email or password.';
+                return false;
+            }
+            localStorage.setItem('hr_current_user', JSON.stringify({
+                email: user.email,
+                name: `${user.firstName || email.split('@')[0]} ${user.lastName || ''}`.trim(),
+                firstName: user.firstName,
+                lastName: user.lastName
+            }));
+            return true;
+        }
+
+        // ── Event wiring ───────────────────────────────────────────
+        const loginBtn   = document.getElementById('loginBtn');
+        const googleBtn  = document.getElementById('googleLoginBtn');
+        const emailInp   = document.getElementById('loginEmail');
+        const passInp    = document.getElementById('loginPassword');
+        const errorSpan  = document.getElementById('loginError');
+
+        function performLogin() {
+            const email = emailInp.value.trim();
+            const pass  = passInp.value;
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<div class="loading-spinner-small"></div> Signing in...';
+
+            setTimeout(() => {
+                if (handleLogin(email, pass, errorSpan)) {
+                    window.location.href = 'app.html'; // redirect to app shell
+                } else {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Sign in →';
+                }
+            }, 300);
+        }
+
+        loginBtn.addEventListener('click', performLogin);
+        [emailInp, passInp].forEach(inp =>
+            inp.addEventListener('keypress', e => { if (e.key === 'Enter') performLogin(); })
+        );
+
+        googleBtn.addEventListener('click', () => {
+            // Redirect to the callback loading page to simulate OAuth
+            window.location.href = 'callback.html';
+        });
+    </script>
+
+</body>
+</html>

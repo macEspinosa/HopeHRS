@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>HR Portal | ElevateHR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="app-wrapper">
+
+        <!-- ── Navbar ──────────────────────────────────────── -->
+        <nav class="navbar">
+            <div style="display: flex; align-items: center;">
+                <button class="sidebar-toggle" id="toggleSidebarBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo-area">
+                    <div class="logo-icon">HR</div>
+                    <div class="logo-text">ElevateHR</div>
+                </div>
+            </div>
+            <div class="user-menu">
+                <span class="user-name" id="userNameDisplay"></span>
+                <button class="logout-btn" id="logoutButton">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </nav>
+
+        <!-- ── Main layout ─────────────────────────────────── -->
+        <div class="main-layout">
+
+            <!-- Sidebar -->
+            <aside class="sidebar" id="appSidebar">
+                <nav class="sidebar-nav">
+                    <div class="nav-item active">
+                        <i class="fas fa-users"></i>
+                        <span class="nav-label">Employees</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-history"></i>
+                        <span class="nav-label">Job History</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-briefcase"></i>
+                        <span class="nav-label">Jobs</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-building"></i>
+                        <span class="nav-label">Departments</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-user-shield"></i>
+                        <span class="nav-label">Admin</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fas fa-trash-alt"></i>
+                        <span class="nav-label">Deleted Items</span>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Content -->
+            <main class="content-area">
+
+                <div class="welcome-card">
+                    <h2 style="color: var(--dark-blue);">Welcome back, <span id="welcomeName"></span> 👋</h2>
+                    <p>Access your HR tools, manage workforce, and gain insights.</p>
+                </div>
+
+                <h3>HR Modules</h3>
+
+                <div class="hr-modules-grid">
+                    <div class="module-card">
+                        <div class="module-icon"><i class="fas fa-users"></i></div>
+                        <h3>Employee Directory</h3>
+                        <p>Manage staff records</p>
+                    </div>
+                    <div class="module-card">
+                        <div class="module-icon"><i class="fas fa-briefcase"></i></div>
+                        <h3>Job History</h3>
+                        <p>Track employment history</p>
+                    </div>
+                    <div class="module-card">
+                        <div class="module-icon"><i class="fas fa-clipboard-list"></i></div>
+                        <h3>Jobs</h3>
+                        <p>Active job postings</p>
+                    </div>
+                    <div class="module-card">
+                        <div class="module-icon"><i class="fas fa-building"></i></div>
+                        <h3>Departments</h3>
+                        <p>Organize teams</p>
+                    </div>
+                    <div class="module-card">
+                        <div class="module-icon"><i class="fas fa-user-shield"></i></div>
+                        <h3>Admin</h3>
+                        <p>System settings</p>
+                    </div>
+                    <div class="module-card">
+                        <div class="module-icon"><i class="fas fa-trash-alt"></i></div>
+                        <h3>Deleted Items</h3>
+                        <p>Restore archived records</p>
+                    </div>
+                </div>
+
+            </main>
+        </div><!-- /.main-layout -->
+    </div><!-- /.app-wrapper -->
+
+    <script>
+        // ── Auth guard ─────────────────────────────────────────────
+        const currentUserRaw = localStorage.getItem('hr_current_user');
+        if (!currentUserRaw) {
+            window.location.href = 'login.html';
+        }
+
+        const user = JSON.parse(currentUserRaw);
+        const displayName = user.name || user.email;
+
+        document.getElementById('userNameDisplay').textContent = displayName;
+        document.getElementById('welcomeName').textContent     = displayName;
+
+        // ── Sidebar toggle ─────────────────────────────────────────
+        const sidebar   = document.getElementById('appSidebar');
+        const toggleBtn = document.getElementById('toggleSidebarBtn');
+        const isMobile  = () => window.innerWidth <= 768;
+
+        // Restore saved state
+        const savedState = localStorage.getItem('sidebarCollapsed');
+        if (savedState === 'true' && !isMobile()) {
+            sidebar.classList.add('collapsed');
+        } else if (isMobile()) {
+            sidebar.classList.add('collapsed');
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            if (!isMobile()) {
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (isMobile()) {
+                sidebar.classList.add('collapsed');
+            } else {
+                const saved = localStorage.getItem('sidebarCollapsed');
+                sidebar.classList.toggle('collapsed', saved === 'true');
+            }
+        });
+
+        // ── Logout ─────────────────────────────────────────────────
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            localStorage.removeItem('hr_current_user');
+            window.location.href = 'login.html';
+        });
+
+        // ── Nav item active state ──────────────────────────────────
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+    </script>
+
+</body>
+</html>
